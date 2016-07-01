@@ -1,0 +1,213 @@
+MPASM  5.50                            MAIN.C   5-5-2014  12:22:06         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Error[108]  : Illegal character (/)
+                      00001 /*
+Error[108]  : Illegal character (*)
+                      00002  * File name            : main.c
+Error[108]  : Illegal character (*)
+                      00003  * Compiler             : MPLAB XC8/ MPLAB C18 compiler
+Error[108]  : Illegal character (*)
+                      00004  * IDE                  : Microchip  MPLAB X IDE v1.90/ MPLAB IDE v8
+Error[108]  : Illegal character (*)
+                      00005  * Author               : Etiq Technologies
+Error[108]  : Illegal character (*)
+                      00006  * Description          : Example_7.5 External Character LCD
+Error[108]  : Illegal character (*)
+                      00007  *                      : Created on May 03, 2014, 11:30 AM
+Error[108]  : Illegal character (*)
+                      00008  *                      : Exmple code configures I2C, initializes external character LCD and USART modul
+                            e. Receiving
+Error[108]  : Illegal character (*)
+                      00009  *                        8 string datas through UART, saving to EEPROM and displays each string on exte
+                            rnal character LCD
+Error[108]  : Illegal character (*)
+                      00010  */
+                      00011 
+Error[108]  : Illegal character (/)
+                      00012 /*______________________________________________________________________________________________________
+                            ____________
+Warning[207]: Found label after column 1. (LCD)
+Error[122]  : Illegal opcode (PIN)
+                      00013  LCD PIN configurations
+Error[111]  : Missing symbol
+                      00014  ----------------------
+Error[108]  : Illegal character (8)
+                      00015     8 bit data
+Warning[207]: Found label after column 1. (Control)
+Error[122]  : Illegal opcode (PORT)
+                      00016     Control PORT    -       PORTA
+                      00017 
+Warning[207]: Found label after column 1. (RA0)
+Error[108]  : Illegal character (-)
+                      00018     RA0     -       EN
+Warning[207]: Found label after column 1. (RA1)
+Error[108]  : Illegal character (-)
+                      00019     RA1     -       R/W
+Warning[207]: Found label after column 1. (RA2)
+Error[108]  : Illegal character (-)
+                      00020     RA2     -       RS
+                      00021 
+Error[113]  : Symbol not previously defined (PORT)
+Error[113]  : Symbol not previously defined (PORTD)
+Error[152]  : Executable code and data must be defined in an appropriate section
+000000                00022     Data PORT       -       PORTD
+                      00023 
+Warning[207]: Found label after column 1. (USART)
+MPASM  5.50                            MAIN.C   5-5-2014  12:22:06         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Error[122]  : Illegal opcode (module)
+                      00024  USART module PORT-PIN Configuration
+Error[111]  : Missing symbol
+                      00025  -----------------------------------
+Warning[207]: Found label after column 1. (Tx)
+Error[108]  : Illegal character (-)
+                      00026     Tx     -       RC6
+Warning[207]: Found label after column 1. (Rx)
+Error[108]  : Illegal character (-)
+                      00027     Rx     -       RC7
+Warning[207]: Found label after column 1. (_________________________________________________________________________________________
+                            ____________________________)
+Warning[208]: Label truncated at 32 characters. (___________________________________________________________________________________
+                            __________________________________)
+Error[108]  : Illegal character (*)
+                      00028  _______________________________________________________________________________________________________
+                            ______________*/
+                      00029 
+Error[113]  : Symbol not previously defined (defined)
+Error[113]  : Symbol not previously defined (__XC)
+Error[112]  : Missing operator
+                      00030 #if defined(__XC)
+                      00031     #include <plib\usart.h>
+                      00032 #elif defined(HI_TECH_C)
+                      00033     #include <htc.h>       /* HiTech General Include File */
+                      00034 #elif defined(__18CXX)
+                      00035     #include <usart.h>
+                      00036 #endif
+                      00037 
+Error[113]  : Symbol not previously defined (defined)
+Error[113]  : Symbol not previously defined (__XC)
+Error[112]  : Missing operator
+                      00038 #if defined(__XC) || defined(HI_TECH_C)
+                      00039 #include <stdint.h>        /* For uint8_t definition */
+                      00040 #include <stdbool.h>       /* For true/false definition */
+                      00041 #endif
+                      00042 
+Error[113]  : Symbol not previously defined (defined)
+Error[113]  : Symbol not previously defined (__XC)
+Error[112]  : Missing operator
+                      00043 #if defined(__XC) || defined(__18CXX)
+                      00044 #include "config.h"
+                      00045 #include "delay.h"
+                      00046 #include "uart.h"
+                      00047 #include "lcd.h"
+                      00048 #include "i2c_1.h"
+                      00049 #include "eeprom.h"
+                      00050 #endif
+                      00051 
+                      00052 #ifndef _XTAL_FREQ
+                      00053 #define _XTAL_FREQ 20000000
+                      00054 #endif
+                      00055 #define Fosc 20000000                                                 /* External crystal frequency     
+MPASM  5.50                            MAIN.C   5-5-2014  12:22:06         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                                                     */
+                      00056 #define baud 9600                                                     /* UART baud rate                 
+                                                     */
+                      00057 #define config_2 ((Fosc/baud/64)-1)
+Error[108]  : Illegal character (/)
+                      00058 /* ______________________________   LCD Display Commands _______________________________________________
+                            ___*/
+                      00059 
+                      00060 #define CLR_LCD                 0x01
+                      00061 #define DISP_ON_CURSOR_OFF      0x0C
+                      00062 #define DISP_OFF_CURSOR_ON      0x0A
+                      00063 #define FIRST_LINE              0x80
+                      00064 #define SECOND_LINE             0x1C
+                      00065 #define TWO_LINE_5X7            0x38
+                      00066 
+Error[108]  : Illegal character (/)
+                      00067 /*______________________________________________________________________________________________________
+                            ____*/
+                      00068 
+Error[122]  : Illegal opcode (char)
+                      00069 unsigned char str[17];;
+Error[122]  : Illegal opcode (char)
+                      00070 unsigned char config_1 = USART_TX_INT_OFF & USART_RX_INT_OFF & USART_ASYNCH_MODE & USART_EIGHT_BIT & USA
+                            RT_CONT_RX & USART_BRGH_LOW;
+Error[122]  : Illegal opcode (main)
+                      00071 void main (void)
+Error[108]  : Illegal character ({)
+                      00072     {
+Warning[207]: Found label after column 1. (CMCON)
+Error[113]  : Symbol not previously defined (CMCON)
+  00000007            00073      CMCON |= 7;                                                    /*      Analog comparators disabled 
+                                                */
+Warning[207]: Found label after column 1. (ADCON1)
+  0000000F            00074      ADCON1=0x0F;                                                   /*      Setting all Analog inputs to
+                             digital IO         */
+Warning[207]: Found label after column 1. (TRISD)
+  00000000            00075      TRISD = 0x00;                                                  /*      Direction of PORTD as output
+                                                */
+Error[106]  : String substitution too complex
+Error[148]  : Expanded source line exceeded 200 characters.
+Warning[207]: Found label after column 1. (ConfigUSART)
+Error[108]  : Illegal character (()
+  00000000            00076      ConfigUSART(config_1, config_2);                               ;                               /*  
+                                USART module configuration                      */
+Warning[207]: Found label after column 1. (lcd_init)
+Error[108]  : Illegal character (()
+  00000000            00077      lcd_init();                                            ;                                           
+                             /*      LCD initialization                              */
+Warning[207]: Found label after column 1. (EEPROM_ON)
+Error[108]  : Illegal character (()
+  00000000            00078      EEPROM_ON();                                                   ;                                   
+                                            /*      I2C iniialization                               */
+Error[129]  : Expected (ENDW)
+MPASM  5.50                            MAIN.C   5-5-2014  12:22:06         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00079        while(1)
+Error[129]  : Expected (END)
+MPASM  5.50                            MAIN.C   5-5-2014  12:22:06         PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ADCON1                            0000000F
+CLR_LCD                           0x01
+CMCON                             00000007
+DISP_OFF_CURSOR_ON                0x0A
+DISP_ON_CURSOR_OFF                0x0C
+FIRST_LINE                        0x80
+Fosc                              20000000                                                 /* External crystal frequency            
+                                              */
+SECOND_LINE                       0x1C
+TRISD                             00000000
+TWO_LINE_5X7                      0x38
+_XTAL_FREQ                        20000000
+__18F4550                         00000001
+baud                              9600                                                     /* UART baud rate                        
+                                              */
+config_2                          ((Fosc/baud/64)-1)
+
+Errors   :    49
+Warnings :    16 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+
